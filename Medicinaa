@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Malla curricular</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; }
+    .materia {
+      display: inline-block;
+      margin: 10px;
+      padding: 20px;
+      border: 2px solid #ccc;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .completada { background-color: lightgreen; }
+    .bloqueada { background-color: lightgray; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+  <h1>Malla Curricular Interactiva</h1>
+  <div id="malla"></div>
+
+  <script>
+    const materias = [
+      { id: 'mate1', nombre: 'Matemáticas I', requisitos: [] },
+      { id: 'mate2', nombre: 'Matemáticas II', requisitos: ['mate1'] },
+      { id: 'fisica1', nombre: 'Física I', requisitos: ['mate1'] },
+      { id: 'fisica2', nombre: 'Física II', requisitos: ['fisica1', 'mate2'] },
+    ];
+
+    const estado = JSON.parse(localStorage.getItem('estadoMaterias') || '{}');
+
+    function render() {
+      const cont = document.getElementById('malla');
+      cont.innerHTML = '';
+
+      materias.forEach(mat => {
+        const completadas = mat.requisitos.every(r => estado[r]);
+        const bloqueada = !completadas;
+
+        const div = document.createElement('div');
+        div.className = 'materia';
+        div.classList.toggle('completada', estado[mat.id]);
+        div.classList.toggle('bloqueada', bloqueada && !estado[mat.id]);
+        div.innerText = mat.nombre;
+
+        if (!bloqueada || estado[mat.id]) {
+          div.onclick = () => {
+            estado[mat.id] = !estado[mat.id];
+            localStorage.setItem('estadoMaterias', JSON.stringify(estado));
+            render();
+          };
+        }
+
+        cont.appendChild(div);
+      });
+    }
+
+    render();
+  </script>
+</body>
+</html>
